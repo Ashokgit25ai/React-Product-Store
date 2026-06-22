@@ -1,59 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import "./App.css";
+import axios from "axios";
+import Loader from "./Loading/Loader";
 
 const App = () => {
+  const [products, setProducts] = useState([]);
+  const [loading,setLoading] = useState(true);
+  const [error,setError] = useState(null);
 
-  const [formData,setFormData] = useState({
-    email:"",
-    password:""
-  });
+  useEffect(() => {
+    // fetch("https://fakestoreapi.com/products")
+    //   .then((res) => res.json())
+    //   .then((data) => setProducts(data))
+    //   .catch((err)=>console.log("Error"));
 
-  const [submittedForm,setSubmittedForm] = useState(null)
-  
-  function handleChange(event){
-    
-    setFormData({
-      ...formData,
-      [event.target.name] : event.target.value
-    })
-
-  };
-  
-  function handleForm(event) {
-    event.preventDefault();
-    setSubmittedForm(formData)
-
-    setFormData(
-      {
-    name:"",
-    email:"",
-    password:""
-  }
-    );
-  }
-
-
+    axios
+      .get("https://fakestoreapi.com/products")
+      .then((res) => {
+        setProducts(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false)
+        setError("Please Try After Sometime!")
+      });
+  }, []);
 
   return (
-    <div>
-     <form onSubmit={handleForm}>
-        <input type="text" placeholder="email@gmail.com" name="name" value={formData.name} onChange={handleChange} required/>
-
-       <input type="email" placeholder="email@gmail.com" name="email" value={formData.email} onChange={handleChange} required/>
-      <input type="password" placeholder="Enter your password..." name="password" value = {formData.password} onChange={handleChange} required/>
-      <button type="submit">Submit</button>
-     </form>
-     <div>
-      {
-        submittedForm && (
-          <div>
-            <h2>Form Submitted</h2>
-            <p>Name:{submittedForm.name}</p>
-            <p>Email: {submittedForm.email}</p>
-            <p>Password: {submittedForm.password}</p>
-          </div>
-        )
-      }
-     </div>
+    <div className="products-container">
+      <h2 className="title">Products List </h2>
+      <div>
+        <div className="products-grid">
+          {products.map((product) => (
+            <div className="product-card" key={product.id}>
+              <img className="product-image" src={product.image} alt="" />
+              <h3 className="product-title">{product.title}</h3>
+              <p className="product-price">{product.price}</p>
+              <p className="product-rating">
+                ⭐ {product.rating.rate} - {product.rating.count}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div>
+          {
+            loading && <Loader/>
+          }
+        </div>
+        <div>
+          {
+            error && <h1>{error}</h1>
+          }
+        </div>
+      </div>
     </div>
   );
 };
