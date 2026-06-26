@@ -46,7 +46,7 @@ const App = () => {
         </div>
         {
           visibleCount < products.length && (
-            <button onClick={showMore} className="Show-more-btn">
+            <button onClick={showMore} className="show-more-btn">
               Show More
             </button>
           )
