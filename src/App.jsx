@@ -5,33 +5,35 @@ import Loader from "./Loading/Loader";
 
 const App = () => {
   const [products, setProducts] = useState([]);
-  const [loading,setLoading] = useState(true);
-  const [error,setError] = useState(null);
+  const [loading,setLoading] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // fetch("https://fakestoreapi.com/products")
-    //   .then((res) => res.json())
-    //   .then((data) => setProducts(data))
-    //   .catch((err)=>console.log("Error"));
-
-    axios
-      .get("https://fakestoreapi.com/products")
-      .then((res) => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("https://fakestoreapi.com/products");
         setProducts(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setLoading(false)
-        setError("Please Try After Sometime!")
-      });
+      } catch (err) {
+        setError("Failed to load page");
+      }
+    };
+    fetchProducts();
   }, []);
+
+  const visibleProducts = products.slice(0,visibleCount)
+
+  const showMore = () =>{
+    setVisibleCount((prev)=>prev+10);
+  }
 
   return (
     <div className="products-container">
       <h2 className="title">Products List </h2>
+      <div>{error && <h1>{error}</h1>}</div>
       <div>
         <div className="products-grid">
-          {products.map((product) => (
+          {visibleProducts.map((product) => (
             <div className="product-card" key={product.id}>
               <img className="product-image" src={product.image} alt="" />
               <h3 className="product-title">{product.title}</h3>
@@ -42,16 +44,15 @@ const App = () => {
             </div>
           ))}
         </div>
-        <div>
-          {
-            loading && <Loader/>
-          }
-        </div>
-        <div>
-          {
-            error && <h1>{error}</h1>
-          }
-        </div>
+        {
+          visibleCount < products.length && (
+            <button onClick={showMore} className="Show-more-btn">
+              Show More
+            </button>
+          )
+        }
+        <div>{loading && <Loader />}</div>
+        
       </div>
     </div>
   );
